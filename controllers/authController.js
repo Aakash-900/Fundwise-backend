@@ -207,6 +207,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
+const path = require('path');
+const fs = require('fs');
 
 // Configure Nodemailer with Gmail credentials
 const transporter = nodemailer.createTransport({
@@ -246,6 +248,8 @@ exports.signup = async (req, res) => {
   }
 };
 
+
+
 exports.login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -262,7 +266,7 @@ exports.login = async (req, res) => {
 
     user.password = undefined;
 
-    const payload = { userId: user.id };
+    const payload = { userId: user.id, role: user.role };
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 
     res.json({
@@ -271,7 +275,8 @@ exports.login = async (req, res) => {
         id: user._id,
         firstName: user.firstName,
         lastName: user.lastName,
-        email: user.email
+        email: user.email,
+        role: user.role // Include the role in the response
       }
     });
   } catch (err) {
@@ -374,8 +379,48 @@ exports.validateToken = async (req, res) => {
       return res.status(401).json({ msg: 'Invalid token' });
     }
 
-    res.json(user); // Send user details back
+    res.json({ user }); // Ensure it returns the user object
   } catch (err) {
     res.status(401).json({ msg: 'Token is not valid' });
+  }
+};
+
+//User profile
+exports.getUserDetails = async (req, res) => {
+  try {
+    const userId = req.user; // Use the user ID from middleware
+    const user = await User.findById(userId).select('-password');
+    
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+
+    res.json(user);
+  } catch (err) {
+    console.error('Error fetching user details:', err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+};
+
+exports.updateProfile = async (req, res) => {
+  try {
+    const userId = req.user; // Assuming the user ID is attached to req.user by the auth middleware
+
+    // Handle file upload if there's a new profile image
+    let profileImage;
+    if (req.file) {
+      profileImage = req.file.path; // Assuming multer sets the path to req.file.path
+    }
+
+    const updatedData = { ...req.body };
+    if (profileImage) {
+      updatedData.profileImage = profileImage;
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updatedData, { new: true });
+
+    res.json({ success: true, user: updatedUser });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error updating profile', error });
   }
 };
