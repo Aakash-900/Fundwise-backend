@@ -249,6 +249,112 @@ exports.signup = async (req, res) => {
 };
 
 
+// exports.signup = async (req, res) => {
+//   const { firstName, lastName, email, password } = req.body;
+
+//   try {
+//     let user = await User.findOne({ email });
+
+//     if (user) {
+//       return res.status(400).json({ msg: 'User already exists' });
+//     }
+
+//     user = new User({
+//       firstName,
+//       lastName,
+//       email,
+//       password: await bcrypt.hash(password, 10),
+//       isVerified: false // Set the user as unverified initially
+//     });
+
+//     await user.save();
+
+//     // Generate email verification token
+//     const verificationToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '24h' });
+
+//     // Send verification email
+//     const mailOptions = {
+//       from: process.env.EMAIL_USER,
+//       to: user.email,
+//       subject: 'Fundwise Email Verification',
+//       text: `Please verify your account by clicking the following link: http://${req.headers.host}/verify/${verificationToken}`
+//     };
+
+//     transporter.sendMail(mailOptions, (err, response) => {
+//       if (err) {
+//         console.error('There was an error:', err);
+//         return res.status(500).json({ msg: 'Error sending verification email' });
+//       } else {
+//         res.status(200).json('Signup successful! Please check your email to verify your account.');
+//       }
+//     });
+//   } catch (err) {
+//     console.error('Signup error:', err);
+//     res.status(500).json({ msg: 'Server error' });
+//   }
+// };
+
+// exports.login = async (req, res) => {
+//   const { email, password } = req.body;
+
+//   try {
+//     const user = await User.findOne({ email }).select('+password');
+//     if (!user) {
+//       return res.status(400).json({ msg: 'Invalid credentials' });
+//     }
+
+//     // Check if the user is verified
+//     if (!user.isVerified) {
+//       return res.status(400).json({ msg: 'Please verify your account before logging in.' });
+//     }
+
+//     const isMatch = await bcrypt.compare(password, user.password);
+//     if (!isMatch) {
+//       return res.status(400).json({ msg: 'Invalid credentials' });
+//     }
+
+//     user.password = undefined;
+
+//     const payload = { userId: user.id, role: user.role };
+//     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+//     res.json({
+//       token,
+//       user: {
+//         id: user._id,
+//         firstName: user.firstName,
+//         lastName: user.lastName,
+//         email: user.email,
+//         role: user.role // Include the role in the response
+//       }
+//     });
+//   } catch (err) {
+//     console.error('Login error:', err);
+//     res.status(500).json({ msg: 'Server error' });
+//   }
+// };
+
+//verifyAccount 
+
+// exports.verifyAccount = async (req, res) => {
+//   try {
+//     const { token } = req.params;
+//     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+//     const user = await User.findById(decoded.userId);
+//     if (!user) return res.status(400).json({ msg: 'Invalid verification link.' });
+
+//     user.isVerified = true;
+//     await user.save();
+
+//     res.status(200).json({ msg: 'Account verified successfully!' });
+//   } catch (err) {
+//     console.error('Verification error:', err);
+//     res.status(400).json({ msg: 'Verification failed.' });
+//   }
+// };
+
+
 
 exports.login = async (req, res) => {
   const { email, password } = req.body;

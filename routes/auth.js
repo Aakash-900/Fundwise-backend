@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const authMiddleware = require('../middleware/authMiddleware');
-const { signup, login, forgetPassword, renderResetPasswordForm, resetPassword, validateToken, getUserDetails, updateProfile } = require('../controllers/authController');
+const { signup, login, forgetPassword, renderResetPasswordForm, resetPassword, validateToken,
+   getUserDetails, updateProfile } = require('../controllers/authController');
 
 
 // Configure multer for handling file uploads
@@ -20,12 +21,14 @@ const upload = multer({ storage: storage });
 
 router.post('/signup', signup);
 router.post('/login', login);
+// router.get('/verify/:token', verifyAccount);
 router.post('/forgot-password', forgetPassword);
 router.get('/reset/:token', renderResetPasswordForm);
 router.post('/reset/:token', resetPassword);
 router.get('/validate-token', authMiddleware, validateToken); 
 router.get('/profile/:id', authMiddleware, getUserDetails);
 router.put('/update-profile', authMiddleware, upload.single('profileImage'), updateProfile);
+
 
 router.get('/protected-route', authMiddleware, (req, res) => {
   res.send('This is a protected route');
