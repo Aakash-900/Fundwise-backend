@@ -1,9 +1,8 @@
 
-
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const dotenv = require('dotenv');
+const dotenv = require('dotenv').config();
 const cors = require('cors');
 const path = require('path');
 const multer = require('multer');
@@ -11,7 +10,6 @@ const authMiddleware = require('./middleware/authMiddleware');
 const { getUserDetails, updateProfile, validateToken} = require('./controllers/authController');
 const { getAllUsers, getUserById, updateUser, deleteUser } = require('./controllers/AdminuserController');
 const contactRoutes = require('./routes/contactRoutes');
-dotenv.config();
 
 const authRoutes = require('./routes/auth');
 const campaignRoutes = require('./routes/campaignRoutes');

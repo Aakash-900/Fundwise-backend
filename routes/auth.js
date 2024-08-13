@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const authMiddleware = require('../middleware/authMiddleware');
-const { signup, login, forgetPassword, renderResetPasswordForm, resetPassword, validateToken,
+const { signup, login, forgetPassword, verifyEmail, renderResetPasswordForm, resetPassword, validateToken,
    getUserDetails, updateProfile } = require('../controllers/authController');
 
 
@@ -21,7 +21,7 @@ const upload = multer({ storage: storage });
 
 router.post('/signup', signup);
 router.post('/login', login);
-// router.get('/verify/:token', verifyAccount);
+router.get('/verify-email', verifyEmail);
 router.post('/forgot-password', forgetPassword);
 router.get('/reset/:token', renderResetPasswordForm);
 router.post('/reset/:token', resetPassword);

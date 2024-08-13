@@ -219,36 +219,6 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-exports.signup = async (req, res) => {
-  const { firstName, lastName, email, password } = req.body;
-
-  try {
-    let user = await User.findOne({ email });
-
-    if (user) {
-      return res.status(400).json({ msg: 'User already exists' });
-    }
-
-    user = new User({
-      firstName,
-      lastName,
-      email,
-      password: await bcrypt.hash(password, 10)
-    });
-
-    await user.save();
-
-    const payload = { userId: user.id };
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-    res.status(201).json({ token });
-  } catch (err) {
-    console.error('Signup error:', err);
-    res.status(500).json({ msg: 'Server error' });
-  }
-};
-
-
 // exports.signup = async (req, res) => {
 //   const { firstName, lastName, email, password } = req.body;
 
@@ -263,31 +233,15 @@ exports.signup = async (req, res) => {
 //       firstName,
 //       lastName,
 //       email,
-//       password: await bcrypt.hash(password, 10),
-//       isVerified: false // Set the user as unverified initially
+//       password: await bcrypt.hash(password, 10)
 //     });
 
 //     await user.save();
 
-//     // Generate email verification token
-//     const verificationToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '24h' });
+//     const payload = { userId: user.id };
+//     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-//     // Send verification email
-//     const mailOptions = {
-//       from: process.env.EMAIL_USER,
-//       to: user.email,
-//       subject: 'Fundwise Email Verification',
-//       text: `Please verify your account by clicking the following link: http://${req.headers.host}/verify/${verificationToken}`
-//     };
-
-//     transporter.sendMail(mailOptions, (err, response) => {
-//       if (err) {
-//         console.error('There was an error:', err);
-//         return res.status(500).json({ msg: 'Error sending verification email' });
-//       } else {
-//         res.status(200).json('Signup successful! Please check your email to verify your account.');
-//       }
-//     });
+//     res.status(201).json({ token });
 //   } catch (err) {
 //     console.error('Signup error:', err);
 //     res.status(500).json({ msg: 'Server error' });
@@ -301,11 +255,6 @@ exports.signup = async (req, res) => {
 //     const user = await User.findOne({ email }).select('+password');
 //     if (!user) {
 //       return res.status(400).json({ msg: 'Invalid credentials' });
-//     }
-
-//     // Check if the user is verified
-//     if (!user.isVerified) {
-//       return res.status(400).json({ msg: 'Please verify your account before logging in.' });
 //     }
 
 //     const isMatch = await bcrypt.compare(password, user.password);
@@ -334,27 +283,76 @@ exports.signup = async (req, res) => {
 //   }
 // };
 
-//verifyAccount 
+// Password validation function
 
-// exports.verifyAccount = async (req, res) => {
-//   try {
-//     const { token } = req.params;
-//     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+const passwordValidator = (password) => {
+  const minLength = 8;
+  const maxLength = 12;
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,12}$/;
 
-//     const user = await User.findById(decoded.userId);
-//     if (!user) return res.status(400).json({ msg: 'Invalid verification link.' });
+  if (password.length < minLength || password.length > maxLength) {
+    return { valid: false, msg: `Password must be between ${minLength} and ${maxLength} characters.` };
+  }
 
-//     user.isVerified = true;
-//     await user.save();
+  if (!passwordRegex.test(password)) {
+    return {
+      valid: false,
+      msg: 'Password must include at least one uppercase letter, one lowercase letter, one number, and one special character.',
+    };
+  }
 
-//     res.status(200).json({ msg: 'Account verified successfully!' });
-//   } catch (err) {
-//     console.error('Verification error:', err);
-//     res.status(400).json({ msg: 'Verification failed.' });
-//   }
-// };
+  return { valid: true };
+};
 
+exports.signup = async (req, res) => {
+  const { firstName, lastName, email, password } = req.body;
 
+  try {
+    // Check if the user already exists
+    let user = await User.findOne({ email });
+    if (user) {
+      return res.status(400).json({ msg: 'User already exists' });
+    }
+
+    // Validate password length and complexity
+    const passwordCheck = passwordValidator(password);
+    if (!passwordCheck.valid) {
+      return res.status(400).json({ msg: passwordCheck.msg });
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create the new user
+    user = new User({
+      firstName,
+      lastName,
+      email,
+      password: hashedPassword,
+      verified: false,  // Add verified status
+    });
+
+    // Save the user to the database
+    await user.save();
+
+    // Generate verification token
+    const verificationToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    // Send verification email with localhost link
+    const verificationLink = `http://localhost:3000/verify-email?token=${verificationToken}`;
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: user.email,
+      subject: 'Verify your email address',
+      text: `Please verify your email by clicking the following link: ${verificationLink}`,
+    });
+
+    res.status(201).json({ msg: 'Signup successful! Please verify your email.' });
+  } catch (err) {
+    console.error('Signup error:', err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+};
 
 exports.login = async (req, res) => {
   const { email, password } = req.body;
@@ -365,12 +363,22 @@ exports.login = async (req, res) => {
       return res.status(400).json({ msg: 'Invalid credentials' });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ msg: 'Invalid credentials' });
+    if (user.isAccountLocked()) {
+      return res.status(403).json({ msg: 'Your account is locked due to too many failed login attempts. Please try again later.' });
     }
 
-    user.password = undefined;
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      await user.incrementFailedLoginAttempts();
+      const remainingAttempts = 5 - user.failedLoginAttempts;
+      if (remainingAttempts > 0) {
+        return res.status(400).json({ msg: `Invalid credentials. You have ${remainingAttempts} attempts left.` });
+      } else {
+        return res.status(403).json({ msg: 'Your account is locked due to too many failed login attempts. Please try again later.' });
+      }
+    }
+
+    await user.resetFailedLoginAttempts();
 
     const payload = { userId: user.id, role: user.role };
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
@@ -382,8 +390,9 @@ exports.login = async (req, res) => {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
-        role: user.role // Include the role in the response
-      }
+        role: user.role,
+        verified: user.verified,
+      },
     });
   } catch (err) {
     console.error('Login error:', err);
@@ -392,6 +401,30 @@ exports.login = async (req, res) => {
 };
 
 
+exports.verifyEmail = async (req, res) => {
+  const { token } = req.query;
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.userId);
+
+    if (!user) {
+      return res.status(400).json({ msg: 'Invalid verification token' });
+    }
+
+    // Update user verification status
+    user.verified = true;
+    await user.save();
+
+    res.status(200).json({ msg: 'Email verified successfully!' });
+  } catch (err) {
+    console.error('Email verification error:', err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+};
+
+
+//forgetpassword
 exports.forgetPassword = async (req, res) => {
   const { email } = req.body;
 
