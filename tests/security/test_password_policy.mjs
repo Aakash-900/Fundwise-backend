@@ -2,7 +2,7 @@ import axios from 'axios';
 import { expect } from 'chai';
 
 describe('Password Policy Enforcement', function() {
-  this.timeout(10000); // 10 seconds timeout
+  this.timeout(10000);
 
   it('should enforce strong password policies', async () => {
     const url = 'http://localhost:5500/api/auth/signup';
