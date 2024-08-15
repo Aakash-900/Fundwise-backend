@@ -2,7 +2,7 @@ import axios from 'axios';
 import { expect } from 'chai';
 
 describe('Brute Force Attack Testing', function() {
-  this.timeout(20000); // 20 seconds timeout
+  this.timeout(20000); 
 
   it('should lock account after 5 failed login attempts', async () => {
     const url = 'http://localhost:5500/api/auth/login';
