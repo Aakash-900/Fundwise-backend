@@ -81,25 +81,7 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 
-// Serve files securely
-app.get('/uploads/:filename', (req, res) => {
-  const filename = req.params.filename;
-  const uploadsDir = path.join(__dirname, 'uploads');
-  
-  // Resolve the full path to the requested file
-  const filePath = path.join(uploadsDir, filename);
 
-  // Normalize the path and check if it starts with the uploads directory
-  if (filePath.startsWith(uploadsDir)) {
-    res.sendFile(filePath, (err) => {
-      if (err) {
-        res.status(404).json({ msg: 'File not found' });
-      }
-    });
-  } else {
-    res.status(400).json({ msg: 'Invalid file path' });
-  }
-});
 
 
 const PORT = process.env.PORT || 5500;
