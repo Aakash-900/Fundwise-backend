@@ -10,7 +10,6 @@ const authMiddleware = require('./middleware/authMiddleware');
 const { getUserDetails, updateProfile, validateToken} = require('./controllers/authController');
 const { getAllUsers, getUserById, updateUser, deleteUser } = require('./controllers/AdminuserController');
 const contactRoutes = require('./routes/contactRoutes');
-
 const authRoutes = require('./routes/auth');
 const campaignRoutes = require('./routes/campaignRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
@@ -23,6 +22,7 @@ app.use(cors({
   origin: 'http://localhost:3000', // Replace with your frontend URL
   credentials: true
 }));
+
 
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));

@@ -209,6 +209,7 @@ const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const path = require('path');
 const fs = require('fs');
+const sanitize = require('sanitize-html');
 
 // Configure Nodemailer with Gmail credentials
 const transporter = nodemailer.createTransport({
@@ -305,11 +306,15 @@ const passwordValidator = (password) => {
 };
 
 exports.signup = async (req, res) => {
-  const { firstName, lastName, email, password } = req.body;
+  // Sanitize inputs to prevent XSS attacks
+  const sanitizedFirstName = sanitize(req.body.firstName);
+  const sanitizedLastName = sanitize(req.body.lastName);
+  const sanitizedEmail = sanitize(req.body.email);
+  const { password } = req.body;
 
   try {
     // Check if the user already exists
-    let user = await User.findOne({ email });
+    let user = await User.findOne({ email: });
     if (user) {
       return res.status(400).json({ msg: 'User already exists' });
     }
@@ -360,26 +365,30 @@ exports.login = async (req, res) => {
   try {
     const user = await User.findOne({ email }).select('+password');
     if (!user) {
+      console.log(`Login attempt with invalid email: ${email}`);
       return res.status(400).json({ msg: 'Invalid credentials' });
     }
 
-    if (user.isAccountLocked()) {
+    // Check if the account is locked
+    const accountLocked = await user.isAccountLocked();
+    if (accountLocked) {
+      console.log(`Login attempt on locked account: ${email}`);
       return res.status(403).json({ msg: 'Your account is locked due to too many failed login attempts. Please try again later.' });
     }
 
+    // Compare provided password with stored password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       await user.incrementFailedLoginAttempts();
       const remainingAttempts = 5 - user.failedLoginAttempts;
-      if (remainingAttempts > 0) {
-        return res.status(400).json({ msg: `Invalid credentials. You have ${remainingAttempts} attempts left.` });
-      } else {
-        return res.status(403).json({ msg: 'Your account is locked due to too many failed login attempts. Please try again later.' });
-      }
+      console.log(`Login failed for ${email}, remaining attempts: ${remainingAttempts}`);
+      return res.status(400).json({ msg: `Invalid credentials. You have ${remainingAttempts} attempts left.` });
     }
 
+    // Reset failed login attempts after successful login
     await user.resetFailedLoginAttempts();
 
+    // Generate a JWT token for the user
     const payload = { userId: user.id, role: user.role };
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 

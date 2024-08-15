@@ -7,13 +7,11 @@ const donationSchema = new mongoose.Schema({
   date: { type: Date, default: Date.now }
 });
 
-
 const commentSchema = new mongoose.Schema({
   user: { type: String, required: true },
   text: { type: String, required: true },
   date: { type: Date, default: Date.now }
 });
-
 
 const campaignSchema = new mongoose.Schema({
   title: { type: String, required: true },
