@@ -35,23 +35,14 @@ app.use('/api/auth', authRoutes);
 //admin
 app.use('/api/admin', userRoutes);
 
-// Serve files securely
-app.get('/uploads/:filename', (req, res) => {
-  const filename = req.params.filename;
-  const uploadsDir = path.join(__dirname, 'uploads');
-  
-  // Resolve the full path to the requested file
-  const filePath = path.join(uploadsDir, filename);
-
-  // Normalize the path and check if it starts with the uploads directory
-  if (filePath.startsWith(uploadsDir)) {
-    res.sendFile(filePath, (err) => {
-      if (err) {
-        res.status(404).json({ msg: 'File not found' });
-      }
-    });
-  } else {
-    res.status(400).json({ msg: 'Invalid file path' });
+// Configure multer for handling file uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + '-' + file.originalname);
   }
 });
 
