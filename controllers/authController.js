@@ -314,7 +314,7 @@ exports.signup = async (req, res) => {
 
   try {
     // Check if the user already exists
-    let user = await User.findOne({ email: });
+    let user = await User.findOne({ email: sanitizedEmail });
     if (user) {
       return res.status(400).json({ msg: 'User already exists' });
     }
@@ -330,9 +330,9 @@ exports.signup = async (req, res) => {
 
     // Create the new user
     user = new User({
-      firstName,
-      lastName,
-      email,
+      firstName: sanitizedFirstName,
+      lastName: sanitizedLastName,
+      email: sanitizedEmail,
       password: hashedPassword,
       verified: false,  // Add verified status
     });
