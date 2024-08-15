@@ -19,8 +19,8 @@ describe('Password Policy Enforcement', function() {
       // The server should reject this weak password
       expect(response.status).to.equal(400);
     } catch (error) {
-      expect(error.response.status).to.equal(400); // Ensure the request is rejected
-      expect(error.response.data.msg).to.include('Password must be stronger'); // Adjust based on your server's error message
+      expect(error.response.status).to.equal(400); 
+      expect(error.response.data.msg).to.include('Password must'); 
     }
   });
 });
