@@ -6,7 +6,7 @@ describe('Password Policy Enforcement', function() {
 
   it('should enforce strong password policies', async () => {
     const url = 'http://localhost:5500/api/auth/signup';
-    const weakPassword = '12345'; // Example of a weak password
+    const weakPassword = '12345'; 
     
     try {
       const response = await axios.post(url, {
@@ -16,7 +16,7 @@ describe('Password Policy Enforcement', function() {
         password: weakPassword
       });
 
-      // The server should reject this weak password
+     
       expect(response.status).to.equal(400);
     } catch (error) {
       expect(error.response.status).to.equal(400); 
