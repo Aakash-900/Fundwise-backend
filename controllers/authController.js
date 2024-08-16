@@ -270,7 +270,7 @@ exports.signup = async (req, res) => {
       lastName: sanitizedLastName,
       email: sanitizedEmail,
       password: hashedPassword,
-      verified: false,  // Add verified status
+      verified: false,  
     });
 
     // Save the user to the database
