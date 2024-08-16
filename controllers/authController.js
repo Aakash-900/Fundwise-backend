@@ -273,7 +273,7 @@ exports.signup = async (req, res) => {
       verified: false,  
     });
 
-    
+    // Save the user to the database
     await user.save();
 
     // Generate verification token
