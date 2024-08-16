@@ -276,7 +276,7 @@ exports.signup = async (req, res) => {
     // Save the user to the database
     await user.save();
 
-   
+    // Generate verification token
     const verificationToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
     // Send verification email with localhost link
