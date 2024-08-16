@@ -23,7 +23,7 @@ describe('Brute Force Attack Testing', function() {
       console.error('Final attempt unexpectedly succeeded or wrong error code.');
     } catch (error) {
       console.error('Final attempt failed:', error.response.status, error.message);
-      expect(error.response.status).to.equal(403);  // Expect account to be locked on the final attempt
+      expect(error.response.status).to.equal(403); 
     }
   });
 });
