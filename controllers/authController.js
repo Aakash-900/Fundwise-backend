@@ -240,6 +240,7 @@ const passwordValidator = (password) => {
   return { valid: true };
 };
 
+
 exports.signup = async (req, res) => {
   // Sanitize inputs to prevent XSS attacks
   const sanitizedFirstName = sanitize(req.body.firstName);
@@ -293,6 +294,7 @@ exports.signup = async (req, res) => {
     res.status(500).json({ msg: 'Server error' });
   }
 };
+
 
 exports.login = async (req, res) => {
   const { email, password } = req.body;

@@ -15,8 +15,8 @@ const userSchema = new mongoose.Schema({
   profileImage: { type: String },
   role: { type: String, enum: ['user', 'admin'], default: 'user' },
   verified: { type: Boolean, default: false },
-  resetPasswordToken: { type: String, select: false }, // Hide token by default
-  resetPasswordExpires: { type: Date, select: false }, // Hide expiry date by default
+  resetPasswordToken: { type: String, select: false },
+  resetPasswordExpires: { type: Date, select: false }, 
   failedLoginAttempts: { type: Number, default: 0 },
   lockUntil: { type: Date },
   passwordLastChanged: { type: Date, default: Date.now },
