@@ -8,7 +8,6 @@ describe('Brute Force Attack Testing', function() {
     const url = 'http://localhost:5500/api/auth/login';
     const userData = { email: 'aakashchdry96@gmail.com', password: 'wrongpassword' };
 
-
     for (let i = 0; i < 5; i++) {
       try {
         await axios.post(url, userData);

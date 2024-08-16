@@ -14,12 +14,20 @@ const authRoutes = require('./routes/auth');
 const campaignRoutes = require('./routes/campaignRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const userRoutes = require('./routes/userRoutes');
-
 const app = express();
+const https = require('https');
+const fs = require('fs');
+
+
+
+const sslOptions = {
+  key: fs.readFileSync(path.join(__dirname, './certs/server.key')),
+  cert: fs.readFileSync(path.join(__dirname, './certs/server.crt'))
+};
 
 // Enable CORS
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: 'https://localhost:3000',
   credentials: true
 }));
 
