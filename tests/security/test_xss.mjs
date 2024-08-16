@@ -2,7 +2,7 @@ import axios from 'axios';
 import { expect } from 'chai';
 
 describe('XSS Attack Testing', function() {
-  this.timeout(10000); // 10 seconds timeout
+  this.timeout(10000); // 
 
   it('should prevent XSS attacks by sanitizing user input', async () => {
     const url = 'http://localhost:5500/api/auth/signup';
