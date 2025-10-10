@@ -28,7 +28,7 @@ const sslOptions = {
 
 // Enable CORS
 app.use(cors({
-  origin: 'https://localhost:3000',
+  origin: 'https://fundingwise.netlify.app/',
   credentials: true
 }));
 

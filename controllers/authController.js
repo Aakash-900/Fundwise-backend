@@ -281,7 +281,7 @@ exports.signup = async (req, res) => {
     const verificationToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
     // Send verification email with localhost link
-    const verificationLink = `https://localhost:3000/verify-email?token=${verificationToken}`;
+    const verificationLink = `https://fundingwise.netlify.app//verify-email?token=${verificationToken}`;
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: user.email,
@@ -413,7 +413,7 @@ exports.forgetPassword = async (req, res) => {
 };
 
 exports.renderResetPasswordForm = (req, res) => {
-  res.redirect(`http://localhost:3000/reset/${req.params.token}`);
+  res.redirect(`https://fundingwise.netlify.app//reset/${req.params.token}`);
 };
 
 exports.resetPassword = async (req, res) => {
