@@ -29,7 +29,6 @@ router.get('/validate-token', authMiddleware, validateToken);
 router.get('/profile/:id', authMiddleware, getUserDetails);
 router.put('/update-profile', authMiddleware, upload.single('profileImage'), updateProfile);
 
-
 router.get('/protected-route', authMiddleware, (req, res) => {
   res.send('This is a protected route');
 });

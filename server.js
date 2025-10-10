@@ -7,7 +7,7 @@ const cors = require('cors');
 const path = require('path');
 const multer = require('multer');
 const authMiddleware = require('./middleware/authMiddleware');
-const { getUserDetails, updateProfile, validateToken} = require('./controllers/authController');
+const { getUserDetails, updateProfile, validateToken } = require('./controllers/authController');
 const { getAllUsers, getUserById, updateUser, deleteUser } = require('./controllers/AdminuserController');
 const contactRoutes = require('./routes/contactRoutes');
 const authRoutes = require('./routes/auth');
@@ -17,6 +17,7 @@ const userRoutes = require('./routes/userRoutes');
 const app = express();
 const https = require('https');
 const fs = require('fs');
+
 
 
 
@@ -34,9 +35,9 @@ app.use(cors({
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.log('MongoDB connection error:', err));
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('✅ MongoDB connected'))
+  .catch(err => console.log('❌ MongoDB connection error:', err));
 
 app.use('/api/auth', authRoutes);
 //admin
@@ -55,6 +56,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 // Use campaign routes and handle file uploads
 app.use('/api/campaigns', upload.single('image'), campaignRoutes);
@@ -79,7 +81,6 @@ app.put('/api/admin/users/:id', authMiddleware, updateUser);
 app.delete('/api/admin/users/:id', authMiddleware, deleteUser);
 
 
-
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, 'build')));
 
@@ -89,5 +90,5 @@ app.get('*', (req, res) => {
 });
 
 
-const PORT = process.env.PORT || 5500;
+const PORT = process.env.PORT || 5200;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));

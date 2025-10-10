@@ -8,4 +8,6 @@ router.get('/users/:id', authMiddleware, getUserById);
 router.put('/users/:id', authMiddleware, updateUser);
 router.delete('/users/:id', authMiddleware, deleteUser);
 
+
+
 module.exports = router;

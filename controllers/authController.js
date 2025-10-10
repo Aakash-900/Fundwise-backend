@@ -210,6 +210,7 @@ const nodemailer = require('nodemailer');
 const path = require('path');
 const fs = require('fs');
 const sanitize = require('sanitize-html');
+const upload = require('../middleware/uploadMiddleware');
 
 // Configure Nodemailer with Gmail credentials
 const transporter = nodemailer.createTransport({
@@ -412,7 +413,7 @@ exports.forgetPassword = async (req, res) => {
 };
 
 exports.renderResetPasswordForm = (req, res) => {
-  res.redirect(`/reset/${req.params.token}`);
+  res.redirect(`http://localhost:3000/reset/${req.params.token}`);
 };
 
 exports.resetPassword = async (req, res) => {
@@ -445,10 +446,8 @@ exports.resetPassword = async (req, res) => {
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
     await user.save();
-
     res.status(200).json({ msg: 'Password has been updated' });
   } catch (err) {
-    console.error('Error resetting password:', err);
     res.status(500).json({ msg: 'Server error' });
   }
 };
